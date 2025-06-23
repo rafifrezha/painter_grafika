@@ -1,6 +1,8 @@
 # 🎨 Mini Paint Grafika Komputer
-Muhamad Rafif Rezha Firmansyah - 123220041
+
 Aplikasi Mini Paint berbasis web untuk tugas/praktikum Grafika Komputer. Mudah digunakan, tampil modern, dan mendukung berbagai fitur dasar menggambar!
+
+**Muhamad Rafif Rezha Firmansyah - 123220041**
 
 ## ✨ Fitur
 
@@ -22,8 +24,8 @@ Aplikasi Mini Paint berbasis web untuk tugas/praktikum Grafika Komputer. Mudah d
 
 ## 🚀 Cara Menjalankan
 
-Link Deployment : https://rafifrezha.github.io/painter_grafika/
-atau 
+Link Deployment : https://rafifrezha.github.io/painter_grafika/  
+atau  
 1. Download atau clone repository ini.
 2. Buka file `painter_grafika.html` di browser modern (Chrome, Edge, Firefox, dsb).
 3. Mulai menggambar di canvas!
@@ -40,6 +42,5 @@ MIT License
 
 ---
 
-Grafika Komputer dan Multimedia IF-A
-
+Grafika Komputer dan Multimedia IF-A  
 UPN "Veteran" Yogyakarta
