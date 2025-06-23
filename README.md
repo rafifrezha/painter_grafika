@@ -1,7 +1,5 @@
 # 🎨 Mini Paint Grafika Komputer
 
-Aplikasi Mini Paint berbasis web untuk tugas/praktikum Grafika Komputer. Mudah digunakan, tampil modern, dan mendukung berbagai fitur dasar menggambar!
-
 **Muhamad Rafif Rezha Firmansyah - 123220041**
 
 ## ✨ Fitur
