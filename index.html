@@ -349,6 +349,8 @@
   <body>
     <div class="toolbar">
       <div class="toolbar-title">Tools</div>
+      <!-- Drawing Tools -->
+      <div class="toolbar-label" style="margin-top: 0.5rem">Drawing</div>
       <div class="toolbar-group">
         <button
           class="btn tool-btn"
@@ -376,12 +378,13 @@
         <button class="btn tool-btn" id="tool-eraser" title="Penghapus">
           <i class="fas fa-eraser"></i><span>Eraser</span>
         </button>
-        <!-- Tambah tombol Text -->
         <button class="btn tool-btn" id="tool-text" title="Tambah Teks">
           <i class="fas fa-font"></i><span>Text</span>
         </button>
       </div>
       <div class="divider"></div>
+      <!-- Style Tools -->
+      <div class="toolbar-label">Style</div>
       <div class="toolbar-group">
         <div class="toolbar-label">Stroke Color</div>
         <div class="color-input-wrap">
@@ -420,6 +423,8 @@
         </div>
       </div>
       <div class="divider"></div>
+      <!-- Edit Tools -->
+      <div class="toolbar-label">Edit</div>
       <div class="toolbar-group">
         <button class="btn tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">
           <i class="fas fa-undo"></i><span>Undo</span>
@@ -443,6 +448,8 @@
         </button>
       </div>
       <div class="divider"></div>
+      <!-- Transform Tools -->
+      <div class="toolbar-label">Transform</div>
       <div class="toolbar-group">
         <button
           class="btn tool-btn"
@@ -466,6 +473,8 @@
         </button>
       </div>
       <div class="divider"></div>
+      <!-- Export/Clear Tools -->
+      <div class="toolbar-label">Export & Clear</div>
       <div class="toolbar-group">
         <button class="btn tool-btn" id="clear-btn">
           <i class="fas fa-broom"></i><span>Clear</span>
@@ -584,8 +593,15 @@
         // Ubah kursor canvas jika select
         if (t === "select") {
           canvas.classList.add("canvas-cursor-select");
+          // Nonaktifkan mode drawing
+          drawing = false;
+          tempPoints = [];
+          imgData = null;
         } else {
           canvas.classList.remove("canvas-cursor-select");
+          // Jika keluar dari select, hilangkan seleksi shape
+          selectedIdx = null;
+          redraw();
         }
         if (t === "polygon") {
           showCustomModal({
@@ -859,6 +875,8 @@
       // Drawing logic
       let tempPoints = [];
       canvas.onmousedown = function (e) {
+        // Nonaktifkan drawing jika mode select
+        if (tool === "select") return;
         drawing = true;
         startX = e.offsetX;
         startY = e.offsetY;
@@ -898,6 +916,7 @@
         }
       };
       canvas.onmousemove = function (e) {
+        if (tool === "select") return;
         let x = e.offsetX,
           y = e.offsetY;
         document.getElementById("coord-info").textContent = `x: ${x}, y: ${y}`;
@@ -959,6 +978,7 @@
         }
       };
       canvas.onmouseup = function (e) {
+        if (tool === "select") return;
         if (!drawing) return;
         drawing = false;
         let x = e.offsetX,
@@ -1082,6 +1102,7 @@
         redraw();
       };
       canvas.onmouseleave = function () {
+        if (tool === "select") return;
         drawing = false;
       };
 
@@ -1497,6 +1518,102 @@
         link.href = URL.createObjectURL(blob);
         link.click();
       };
+
+      // --- Select & Edit ---
+      let dragOffset = null;
+      let isDragging = false;
+
+      // Select shape on mousedown (tool select)
+      canvas.addEventListener("mousedown", function (e) {
+        if (tool === "select") {
+          let x = e.offsetX,
+            y = e.offsetY;
+          let found = null;
+          for (let i = shapes.length - 1; i >= 0; i--) {
+            if (isPointInShape(x, y, shapes[i])) {
+              found = i;
+              break;
+            }
+          }
+          if (found !== null) {
+            selectedIdx = found;
+            // Hitung offset drag
+            let s = shapes[selectedIdx];
+            if (
+              s.type === "rect" ||
+              s.type === "ellipse" ||
+              s.type === "line" ||
+              s.type === "polygon" ||
+              s.type === "text" ||
+              s.type === "freehand" ||
+              s.type === "eraser"
+            ) {
+              dragOffset = [x, y];
+              isDragging = true;
+            }
+            showToast("Shape terpilih!");
+          } else {
+            selectedIdx = null;
+          }
+          redraw();
+        }
+      });
+
+      // Drag shape (translate) with mousemove
+      canvas.addEventListener("mousemove", function (e) {
+        if (tool === "select" && isDragging && selectedIdx !== null) {
+          let s = shapes[selectedIdx];
+          let x = e.offsetX,
+            y = e.offsetY;
+          let dx = x - dragOffset[0];
+          let dy = y - dragOffset[1];
+          // Geser semua titik shape
+          for (let i = 0; i < s.points.length; i++) {
+            s.points[i][0] += dx;
+            s.points[i][1] += dy;
+          }
+          dragOffset = [x, y];
+          redraw();
+        }
+      });
+
+      // Stop drag on mouseup
+      canvas.addEventListener("mouseup", function (e) {
+        if (tool === "select") {
+          isDragging = false;
+          dragOffset = null;
+        }
+      });
+
+      // --- Edit color, fill, size for selected shape ---
+      function updateSelectedShapeProps() {
+        if (selectedIdx !== null && shapes[selectedIdx]) {
+          let s = shapes[selectedIdx];
+          s.color = color;
+          if ("fill" in s) s.fill = fillColor;
+          s.size = size;
+          redraw();
+        }
+      }
+      document
+        .getElementById("color-picker")
+        .addEventListener("input", function (e) {
+          color = e.target.value;
+          updateSelectedShapeProps();
+        });
+      document
+        .getElementById("fill-picker")
+        .addEventListener("input", function (e) {
+          fillColor = e.target.value;
+          updateSelectedShapeProps();
+        });
+      document
+        .getElementById("size-slider")
+        .addEventListener("input", function (e) {
+          size = parseInt(e.target.value);
+          sizeValue.textContent = size;
+          updateSelectedShapeProps();
+        });
     </script>
   </body>
 </html>
